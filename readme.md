@@ -9,5 +9,5 @@ mysql server
 
 
 Developer Tools Used:
-OpenUV api
+Openweather api
 mysql-workbench
