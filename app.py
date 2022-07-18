@@ -1,6 +1,6 @@
 ######################################
 # Skeleton: Ben Lawson <balawson@bu.edu>
-# Edited by: Addison Baum <atomsk@bu.edu> and Scarlett Li (scartt@bu.edu)
+# Edited by: Addison Baum <atomsk@bu.edu> Wadi Ahmed Brayan Pichardo
 ######################################
 # Some code adapted from
 # CodeHandBook at http://codehandbook.org/python-web-application-development-using-flask-and-mysql/
