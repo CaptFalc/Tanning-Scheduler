@@ -50,6 +50,21 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
+
+
+def getlatLong(zip):
+    country = pgeocode.Nominatim('us')
+    query = country.query_postal_code(zip)
+
+    data = {
+        "lat": query["latitude"],
+        "lon": query["longitude"]
+    }
+
+    print(data)
+
+
+
 #end login code	
 
 class User(flask_login.UserMixin):
