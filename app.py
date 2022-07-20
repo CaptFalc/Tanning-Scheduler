@@ -16,6 +16,7 @@ import flask_login
 from dotenv import load_dotenv
 import os
 import requests
+import pgeocode
 
 load_dotenv()
 mysql = MySQL()
@@ -62,15 +63,20 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
 def getLocation(user):
 	#Gets location of user from database, if not found returns False
 	cursor=conn.cursor()
-	if cursor.execute("SELECT zipcode FROM Users where email='{0}'".format(user)):
+	if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(user)):
 		return cursor.fetchone()
 	else:
-		return False
+		cursor.execute("Select zipcode from users where email='{0}'".format(user))
+		zipcode=cursor.fetchone()
+		latlon=getlatLon(zipcode)		
+		cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",zipcode,latlon[0],latlon[1])
+		conn.commit()
+		return latlon
 
 
 #Starter code for finding schedule. Takes user, uv preferences, schedule, outputs uv schedule data
-def getSchedule(user,preferences,schedule=None):
-    location=getLocation(user)
+def getSchedule(useremail,preferences,schedule=None):
+    location=getLocation(useremail)
     return 0
 '''
 	if location:
@@ -95,16 +101,11 @@ def isEmailUnique(email):
 		return True
 
 
-def getlatLong(zip):
+def getlatLon(zip):
     country = pgeocode.Nominatim('us')
     query = country.query_postal_code(zip)
-
-    data = {
-        "lat": query["latitude"],
-        "lon": query["longitude"]
-    }
-
-    print(data)
+    latlon=(query["latitude"],query["longitude"])
+    return latlon
 
 
 
@@ -241,10 +242,10 @@ def calendar():
 	try:
 		preferences=request.form.get('preferences')	
 		schedule=request.form.get('schedule')
-		user=flask_login.current_user
+		useremail=flask_login.current_user.id
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
-	schedule=getSchedule(user,preferences,schedule)
+	schedule=getSchedule(useremail,preferences,schedule)
 	if(schedule):
 		pass
 	else:
