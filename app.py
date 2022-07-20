@@ -229,11 +229,6 @@ def register_user():
 def hello():
 	return render_template('hello.html')
 
-@app.route('/profile')
-@flask_login.login_required
-def protected():
-	return render_template('hello.html', name=flask_login.current_user.id,message="Here's your profile")
-
 
 @app.route("/scheduler", methods=['POST'])
 @flask_login.login_required
