@@ -51,11 +51,7 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
     for x in response["hourly"]:
         dt=x["dt"]
         uvi=x["uvi"]
-<<<<<<< HEAD
         hours.append(dt,uvi)
-=======
-        hours.append(dt,uvi)     
->>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
     print("daily")
     for x in range(5):
         y=response["daily"][x]
@@ -72,11 +68,7 @@ def getLocation(user):
 	else:
 		cursor.execute("Select zipcode from users where email='{0}'".format(user))
 		zipcode=cursor.fetchone()
-<<<<<<< HEAD
 		latlon=getlatLon(zipcode)
-=======
-		latlon=getlatLon(zipcode)		
->>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
 		cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",zipcode,latlon[0],latlon[1])
 		conn.commit()
 		return latlon
@@ -117,11 +109,7 @@ def getlatLon(zip):
 
 
 
-<<<<<<< HEAD
 #end login code
-=======
-#end login code	
->>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
 
 class User(flask_login.UserMixin):
 	pass
