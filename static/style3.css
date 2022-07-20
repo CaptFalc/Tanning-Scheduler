@@ -1,0 +1,67 @@
+*{
+    margin: 0;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+
+    background-image:linear-gradient(rgb(0,0,0,0.75), rgb(0,0,0,0.75)), url(images/watermelon.jpg);;
+    background-size: cover;
+    background-position:center;
+}
+
+.container{
+    widthL 380px;
+    height: 400px;
+    position: relative;
+    margin: auto;
+    background-color: transparent;
+    padding: 10px;
+    border-radius: 20px;
+
+}
+.container .title{
+    text-align: center;
+    font-size: 25px;
+    font-weight: 500;
+    position: relative;
+    color: #fff;
+}
+
+.input-box{
+    width: 300px;
+    margin-left; 20px;
+}
+
+label{
+    display: flex;
+    margin-top: 20px;
+    font-size: 18px;
+    color: #fff;
+}
+
+input{
+    width: 100%;
+    padding: 7px;
+    border: none;
+    border: 1px solid gray;
+    border-radius: 6px;
+    outline: none;
+}
+
+input[type='submit']{
+    width: 300px;
+    height: 35px;
+    margin-top: 20px;
+    border: none;
+    background-color: #009688
+}
+
+

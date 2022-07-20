@@ -1,19 +1,19 @@
 <!doctype html>
-{% if message %}
-  <h4>{{message}}!</h4>
-{% endif %}
-<title>Tanning Scheduler</title> 
-{% if name %}
-  <h1>Hello {{ name }}!</h1>
-{% endif %}
+<html>
+<head>
+<title>Tanning Scheduler</title>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
 
-
-{% if message is none %}
-  <p>You should <a href='/login'>login!</a></p>
-{% endif %}
-
-<ul>
-<li><a href='/'>Home</a></li>
-<li><a href='/login'>Login</a></li>
-<li><a href='/register'>Register</a></li>
-</ul> 
+</head>
+<body>
+  <div class="banner">
+    <div class="content">
+      <h1>Your Tanning Scheduler</h1>
+      <p>Time for some tan lines and good times!
+      Register or log-in if you are a returning costumer</p>
+     <button onclick="location.href='/register'" type="button"> <span> </span>Sign Up </buttom>
+      <button onclick="location.href='/login'" type="button" > <span> </span>Log In </buttom>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 ######################################
 # Skeleton: Ben Lawson <balawson@bu.edu>
-# Edited by: Addison Baum <atomsk@bu.edu> and Scarlett Li (scartt@bu.edu)
+# Edited by: Addison Baum <atomsk@bu.edu> Wadi Ahmed Brayan Pichardo
 ######################################
 # Some code adapted from
 # CodeHandBook at http://codehandbook.org/python-web-application-development-using-flask-and-mysql/
@@ -15,6 +15,8 @@ from flaskext.mysql import MySQL
 import flask_login
 from dotenv import load_dotenv
 import os
+import requests
+import pgeocode
 
 load_dotenv()
 mysql = MySQL()
@@ -23,8 +25,8 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'yourpassword'
-app.config['MYSQL_DATABASE_DB'] = os.environ.get("tanningpassword")
+app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get("tanningpassword")
+app.config['MYSQL_DATABASE_DB'] = 'tanningscheduler'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
@@ -36,6 +38,53 @@ conn = mysql.connect()
 cursor = conn.cursor()
 cursor.execute("SELECT email from Users")
 users = cursor.fetchall()
+
+
+def getUvi(lat, lon, exclude="minutely,current,alerts"):
+	#Takes coordinates (ints), returns tuple of two lists: uv index of next 48 hours and 5 days.
+    apikey = os.environ.get('apikey')
+    api_url = "https://api.openweathermap.org/data/3.0/onecall?lat={0}&lon={1}&exclude={2}&appid={3}".format(lat, lon, exclude, apikey)
+    response=requests.get(api_url)
+    response=response.json()
+    hours=[]
+    days=[]
+    for x in response["hourly"]:
+        dt=x["dt"]
+        uvi=x["uvi"]
+        hours.append(dt,uvi)
+    print("daily")
+    for x in range(5):
+        y=response["daily"][x]
+        dt=y["dt"]
+        uvi=y["uvi"]
+        days.append((dt,uvi))
+    return (hours,days)
+
+def getLocation(user):
+	#Gets location of user from database, if not found returns False
+	cursor=conn.cursor()
+	if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(user)):
+		return cursor.fetchone()
+	else:
+		cursor.execute("Select zipcode from users where email='{0}'".format(user))
+		zipcode=cursor.fetchone()
+		latlon=getlatLon(zipcode)
+		cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",zipcode,latlon[0],latlon[1])
+		conn.commit()
+		return latlon
+
+
+#Starter code for finding schedule. Takes user, uv preferences, schedule, outputs uv schedule data
+def getSchedule(useremail,preferences,schedule=None):
+    location=getLocation(useremail)
+    return 0
+'''
+	if location:
+		cursor=conn.cursor()
+		cursor.execute("SELECT email from Users ")
+	else:
+		return False 
+'''
 
 def getUserList():
 	cursor = conn.cursor()
@@ -50,7 +99,17 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
-#end login code	
+
+
+def getlatLon(zip):
+    country = pgeocode.Nominatim('us')
+    query = country.query_postal_code(zip)
+    latlon=(query["latitude"],query["longitude"])
+    return latlon
+
+
+
+#end login code
 
 class User(flask_login.UserMixin):
 	pass
@@ -175,6 +234,22 @@ def hello():
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id,message="Here's your profile")
 
+
+@app.route("/scheduler", methods=['POST'])
+@flask_login.login_required
+def calendar():
+	#gets user inputs, redirects to page with schedule
+	try:
+		preferences=request.form.get('preferences')
+		schedule=request.form.get('schedule')
+		useremail=flask_login.current_user.id
+	except:
+		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+	schedule=getSchedule(useremail,preferences,schedule)
+	if(schedule):
+		pass
+	else:
+		print("Error")
 
 if __name__ == "__main__":
 	# this is invoked when in the shell  you run

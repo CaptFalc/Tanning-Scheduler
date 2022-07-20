@@ -1,25 +1,40 @@
+<!DOCTYPE html>
+<html>
 <head>
     <title>Create an account!</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style3.css') }}">
 </head>
-{%if not supress%}
-<h1> Email already in use! Use another one or <a href="/login">login</a></h1>
-{% endif %}
     <body>
-        <div class="title">
-            <h1>Enter your information below</h1>
+
+        <div class="container">
+                <form action="POST" action="{{ url_for('register_user') }}">
+                    <div class="title"> Registration </div>
+
+                    <div class="user-details">
+                        <div class="input-box">
+                        <label> Enter your name: </label>
+                        <input type="name" name="name" placeholder="Put in your name" required/>
+                        </div>
+
+                        <div class="input-box">
+                        <label> Enter your email: </label>
+                        <input type="email" name="email" placeholder="Put in your email" required/>
+                        </div>
+
+                        <div class="input-box">
+                        <label> Enter your password: </label>
+                        <input type="password" name="password" placeholder="Put in your password" required/>
+                        </div>
+
+                        <div class="input-box">
+                        <label> Enter your zipcode (optional): </label>
+                        <input type="zipcode"  pattern="[0-9]{5}" name="zipcode" placeholder="Put in your zipcode"/>
+                        </div>
+
+                        <input type="submit" value="Register" />
+
+                    </div>
+                </form>
         </div>
-        <div id="content">
-            <form method="post" action="{{ url_for('register_user') }}">
-                <label for="email">Enter your email:</label>
-                <input type="email" name="email" /><br />
-                <label for="name">Enter your name:</label>
-                <input type="name" name="name" /><br />
-                <label for="password">Enter password:</label>
-                <input type="password" name="password" /><br />
-                <label for="zipcode">Enter zipcode:</label>
-                <input type="text" name="zipcode" /><br />
-                <input type="submit" />
-            </form>
-         </div>
     </body>
-<a href='/'>Home</a>
+</html>
