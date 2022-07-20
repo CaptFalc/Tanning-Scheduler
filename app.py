@@ -246,24 +246,7 @@ def calendar():
 	else:
 		print("Error")
 
-@app.route("/scheduler", methods=['POST'])
-@flask_login.login_required
-def calendar():
-	#gets user inputs, redirects to page with schedule
-	try:
-		preferences=request.form.get('preferences')
-		schedule=request.form.get('schedule')
-		useremail=flask_login.current_user.id
-	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
-	schedule=getSchedule(useremail,preferences,schedule)
-	if(schedule):
-		pass
-	else:
-		print("Error")
-
 if __name__ == "__main__":
 	# this is invoked when in the shell  you run
 	# $ python app.py
 	app.run(port=5000, debug=True)
-	
