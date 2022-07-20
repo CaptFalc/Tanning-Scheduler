@@ -1,5 +1,5 @@
 To run:
-1. enter the skeleton folder 'cd path/to/skeleton'
+1. enter the repo folder 'cd path/to/repo'
 2. install all necessary packages 'pip install -r requirements.txt' (or use pip3)
 3.Import dump into mysql through mysql workbench
     3a.Server->Data Import->Import from Self Contained File

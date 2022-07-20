@@ -51,7 +51,11 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
     for x in response["hourly"]:
         dt=x["dt"]
         uvi=x["uvi"]
+<<<<<<< HEAD
         hours.append(dt,uvi)
+=======
+        hours.append(dt,uvi)     
+>>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
     print("daily")
     for x in range(5):
         y=response["daily"][x]
@@ -68,7 +72,11 @@ def getLocation(user):
 	else:
 		cursor.execute("Select zipcode from users where email='{0}'".format(user))
 		zipcode=cursor.fetchone()
+<<<<<<< HEAD
 		latlon=getlatLon(zipcode)
+=======
+		latlon=getlatLon(zipcode)		
+>>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
 		cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",zipcode,latlon[0],latlon[1])
 		conn.commit()
 		return latlon
@@ -109,7 +117,11 @@ def getlatLon(zip):
 
 
 
+<<<<<<< HEAD
 #end login code
+=======
+#end login code	
+>>>>>>> dbbaab012125b7eca265983c1a4b2fafba6f7b75
 
 class User(flask_login.UserMixin):
 	pass
@@ -229,11 +241,22 @@ def register_user():
 def hello():
 	return render_template('hello.html')
 
-@app.route('/profile')
-@flask_login.login_required
-def protected():
-	return render_template('hello.html', name=flask_login.current_user.id,message="Here's your profile")
 
+@app.route("/scheduler", methods=['POST'])
+@flask_login.login_required
+def calendar():
+	#gets user inputs, redirects to page with schedule
+	try:
+		preferences=request.form.get('preferences')	
+		schedule=request.form.get('schedule')
+		useremail=flask_login.current_user.id
+	except:
+		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+	schedule=getSchedule(useremail,preferences,schedule)
+	if(schedule):
+		pass
+	else:
+		print("Error")
 
 @app.route("/scheduler", methods=['POST'])
 @flask_login.login_required
@@ -255,3 +278,4 @@ if __name__ == "__main__":
 	# this is invoked when in the shell  you run
 	# $ python app.py
 	app.run(port=5000, debug=True)
+	
