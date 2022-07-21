@@ -12,11 +12,15 @@
 import flask
 from flask import Flask, request, render_template
 from flaskext.mysql import MySQL
+from icalendar import Calendar, Event
+from datetime import datetime
+from pathlib import Path
 import flask_login
 from dotenv import load_dotenv
 import os
 import requests
 import pgeocode
+import pytz
 
 load_dotenv()
 mysql = MySQL()
@@ -59,6 +63,30 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
         uvi=y["uvi"]
         days.append((dt,uvi))
     return (hours,days)
+    
+def parseCal(icsFile, zip):
+    opencal = open(icsFile, 'rb')
+    cal = Calendar.from_ical(opencal.read())
+    times = []
+    latlon = getlatLon(zip)
+    uvList = getUvi(latlon[0], latlon[1])
+    for component in cal.walk():
+       if component.name == "VEVENT":
+           event = []
+           start = component.decoded("dtstart").timestamp()
+           end = component.decoded("dtend").timestamp()
+           event.append(start)
+           event.append(end)
+           event.append(-1)
+           times.append(event)
+    for uv in uvList:
+        uvIndex = uv[0][1]
+        uvTime = uv[0][0]
+        if(uvList.contains(uvTime)):
+           uv[0][0] = uvTime - (30 * 60) 
+        times.append(uv)
+    opencal.close()
+    print(times)
 
 def getLocation(user):
 	#Gets location of user from database, if not found returns False
