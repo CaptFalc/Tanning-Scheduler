@@ -57,7 +57,6 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
         dt = x["dt"]
         uvi = x["uvi"]
         hours.append(dt, uvi)
-    print("daily")
     for x in range(5):
         y = response["daily"][x]
         dt = y["dt"]
@@ -66,29 +65,23 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
     return (hours, days)
 
 
-def parseCal(icsFile, zip):
-    opencal = open(icsFile, 'rb')
-    cal = Calendar.from_ical(opencal.read())
-    times = []
-    latlon = getlatLon(zip)
-    uvList = getUvi(latlon[0], latlon[1])
-    for component in cal.walk():
-        if component.name == "VEVENT":
-            event = []
-            start = component.decoded("dtstart").timestamp()
-            end = component.decoded("dtend").timestamp()
-            event.append(start)
-            event.append(end)
-            event.append(-1)
-            times.append(event)
-    for uv in uvList:
-        uvIndex = uv[0][1]
-        uvTime = uv[0][0]
-        if(uvList.contains(uvTime)):
-            uv[0][0] = uvTime - (30 * 60)
-        times.append(uv)
-    opencal.close()
-    print(times)
+def parseCal(uvi,schedule=None):
+    times=[]
+    if schedule:
+        opencal = open(schedule, 'rb')
+        cal = Calendar.from_ical(opencal.read())
+        for component in cal.walk():
+            if component.name == "VEVENT":
+                event = []
+                start = component.decoded("dtstart").timestamp()
+                end = component.decoded("dtend").timestamp()
+                event.append(start)
+                event.append(end)
+                event.append(-1)
+                times.append(event)
+    hours=uvi[0]
+    days=uvi[1]
+    return 0
 
 def getUserzip(useremail):
 	cursor = conn.cursor()
@@ -111,10 +104,6 @@ def getLocation(useremail):
         return latlon
 
 
-# Starter code for finding schedule. Takes user, schedule, outputs uv schedule data
-def getSchedule(useremail, schedule=None):
-    location = getLocation(useremail)
-    return 0
 
 
 '''
@@ -294,21 +283,28 @@ def hello():
     return render_template('hello.html')
 
 
-@app.route("/scheduler", methods=['POST'])
+@app.route("/calendar", methods=['POST'])
 @flask_login.login_required
 def calendar():
-    # gets user inputs, redirects to page with schedule
-    try:
-        schedule = request.form.get('schedule')
-        useremail = flask_login.current_user.id
-    except:
-        # this prints to shell, end users will not see this (all print statements go to shell)
-        print("couldn't find all tokens")
-    schedule = getSchedule(useremail, schedule)
-    if(schedule):
-        pass
-    else:
-        print("Error")
+   # gets user inputs, redirects to page with schedule
+	try:
+		schedule = request.form.get('schedule')
+		useremail = flask_login.current_user.id
+		location=getLocation(useremail)
+		uvi=getUvi(location[0],location[1])
+		parseCal(uvi,schedule)
+	except:
+		# this prints to shell, end users will not see this (all print statements go to shell)
+		useremail = flask_login.current_user.id
+		location=getLocation(useremail)
+		uvi=getUvi(location[0],location[1])
+		parseCal(uvi)
+
+	schedule = getSchedule(useremail, schedule)
+	if(schedule):
+		pass
+	else:
+		print("Error")
 
 
 @app.route("/updatezipcode", methods=['POST'])
@@ -318,8 +314,6 @@ def changezip():
 	useremail = flask_login.current_user.id
 	updateZip(useremail,zipcode)
 	return render_template('layout.html', zipcode=zipcode)
-
-
 
 
 if __name__ == "__main__":
