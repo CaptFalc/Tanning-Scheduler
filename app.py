@@ -79,7 +79,7 @@ def getLocation(user):
 
 
 # Starter code for finding schedule. Takes user, uv preferences, schedule, outputs uv schedule data
-def getSchedule(useremail, uvpref, schedule=None):
+def getSchedule(useremail, schedule=None):
     location = getLocation(useremail)
     return 0
 
@@ -245,9 +245,6 @@ def hello():
 def calendar():
     # gets user inputs, redirects to page with schedule
     try:
-        uvmin=request.form.get('uvmin')
-        uvmax=request.form.get('uvmax')
-        uvpref=(uvmin,uvmax)
         try:
             schedule=request.form.get('schedule')
         except:
@@ -256,7 +253,7 @@ def calendar():
     except:
         # this prints to shell, end users will not see this (all print statements go to shell)
         print("couldn't find all tokens")
-    schedule = getSchedule(useremail, uvpref, schedule)
+    schedule = getSchedule(useremail,schedule)
     if(schedule):
         pass
     else:
