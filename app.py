@@ -107,8 +107,8 @@ def getLocation(user):
         return latlon
 
 
-# Starter code for finding schedule. Takes user, uv preferences, schedule, outputs uv schedule data
-def getSchedule(useremail, preferences, schedule=None):
+# Starter code for finding schedule. Takes user, schedule, outputs uv schedule data
+def getSchedule(useremail, schedule=None):
     location = getLocation(useremail)
     return 0
 
@@ -120,6 +120,18 @@ def getSchedule(useremail, preferences, schedule=None):
 	else:
 		return False 
 '''
+def getOffset(lat,lon):
+    key=str(os.environ.get('timezonekey'))  
+    url="http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng={2}".format(
+        key,lat,lon
+    )
+    response=requests.get(url)
+    response=response.json()
+    offset=int(response["gmtOffset"])
+    offset=offset/3600
+    return offset
+	
+
 
 
 def getUserList():
@@ -267,13 +279,12 @@ def hello():
 def calendar():
     # gets user inputs, redirects to page with schedule
     try:
-        preferences = request.form.get('preferences')
         schedule = request.form.get('schedule')
         useremail = flask_login.current_user.id
     except:
         # this prints to shell, end users will not see this (all print statements go to shell)
         print("couldn't find all tokens")
-    schedule = getSchedule(useremail, preferences, schedule)
+    schedule = getSchedule(useremail, schedule)
     if(schedule):
         pass
     else:
