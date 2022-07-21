@@ -12,9 +12,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 <h1>Please tell us your preferences</h1>
 
-{% if zipcode %}
-    <h4>{{zipcode}}!</h4>
-{% endif %}    
+{%if zipcode%}
+<h4>Your Zipcode: {{zipcode}}</h4>
+{%endif%}    
 
 <form method="POST" action="/updatezipcode">
     <div class="mb-3">
@@ -27,8 +27,8 @@
 <form method="POST">
     
     <div class="mb-3">
-        <label for="file" class="style"> Upload calendar (.ics file) </label>
-        <input id ="file" type="file" name="myImage" accept=".ics" class="form-label" /> <br />
+        <label for="schedule" class="style"> Upload calendar (.ics file) </label>
+        <input id ="schedule" type="file" name="schedule" accept=".ics" class="form-label" /> <br />
     </div>
 
     <input class="btn btn-light" type="submit" value="Submit">

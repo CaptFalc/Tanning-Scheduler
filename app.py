@@ -132,6 +132,11 @@ def getOffset(lat,lon):
     return offset
 	
 
+def updateZip(email,zipcode):
+	cursor=conn.cursor()
+	cursor.execute("UPDATE users SET zipcode={0} WHERE email={1}".format(
+		zipcode,email
+	))
 
 
 def getUserList():
@@ -289,6 +294,17 @@ def calendar():
         pass
     else:
         print("Error")
+
+
+@app.route("/updatezipcode", methods=['POST'])
+@flask_login.login_required
+def changezip():
+	zipcode= request.form.get('zipcode')
+	useremail = flask_login.current_user.id
+	updateZip(useremail,zipcode)
+	return render_template('layout.html', zipcode=zipcode)
+
+
 
 
 if __name__ == "__main__":
