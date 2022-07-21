@@ -131,10 +131,11 @@ def getOffset(lat,lon):
     url="http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng={2}".format(
         key,lat,lon
     )
-    print(url)
     response=requests.get(url)
     response=response.json()
-    return response["gmtOffset"]
+    offset=int(response["gmtOffset"])
+    offset=offset/3600
+    return offset
 
 # end login code
 
