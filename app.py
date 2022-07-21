@@ -77,6 +77,17 @@ def getLocation(user):
         conn.commit()
         return latlon
 
+def getTimeZone(latlon):
+    key=str(os.environ.get('timezonekey'))  
+    url="http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng=2".format(
+        key,latlon[0],latlon[1]
+    )
+    response=requests.get(url)
+    response=response.json()
+    return response["gmtOffset"]
+
+
+
 
 # Starter code for finding schedule. Takes user, uv preferences, schedule, outputs uv schedule data
 def getSchedule(useremail, schedule=None):
@@ -115,6 +126,15 @@ def getlatLon(zip):
     latlon = (query["latitude"], query["longitude"])
     return latlon
 
+def getOffset(lat,lon):
+    key=str(os.environ.get('timezonekey'))  
+    url="http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng={2}".format(
+        key,lat,lon
+    )
+    print(url)
+    response=requests.get(url)
+    response=response.json()
+    return response["gmtOffset"]
 
 # end login code
 
