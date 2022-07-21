@@ -90,16 +90,20 @@ def parseCal(icsFile, zip):
     opencal.close()
     print(times)
 
+def getUserzip(useremail):
+	cursor = conn.cursor()
+	cursor.execute(
+            "Select zipcode from users where email='{0}'".format(useremail))
+	zipcode=cursor.fetchone()
+	return zipcode
 
-def getLocation(user):
+def getLocation(useremail):
     # Gets location of user from database, if not found returns False
     cursor = conn.cursor()
-    if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(user)):
+    if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(useremail)):
         return cursor.fetchone()
     else:
-        cursor.execute(
-            "Select zipcode from users where email='{0}'".format(user))
-        zipcode = cursor.fetchone()
+        zipcode =getUserzip(useremail)
         latlon = getlatLon(zipcode)
         cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",
                        zipcode, latlon[0], latlon[1])
@@ -132,6 +136,11 @@ def getOffset(lat,lon):
     return offset
 	
 
+def updateZip(email,zipcode):
+	cursor=conn.cursor()
+	cursor.execute("UPDATE users SET zipcode={0} WHERE email={1}".format(
+		zipcode,email
+	))
 
 
 def getUserList():
@@ -265,6 +274,13 @@ def register_user():
         print("couldn't find all tokens")
         return flask.redirect(flask.url_for('register'))
 
+@app.route("/layout", methods=['GET'])
+@flask_login.login_required
+def layoutpage():
+    useremail = flask_login.current_user.id
+    zipcode=getUserzip(useremail)
+    return render_template('layout.html', zipcode=zipcode)
+
 
 # default page
 
@@ -289,6 +305,17 @@ def calendar():
         pass
     else:
         print("Error")
+
+
+@app.route("/updatezipcode", methods=['POST'])
+@flask_login.login_required
+def changezip():
+	zipcode= request.form.get('zipcode')
+	useremail = flask_login.current_user.id
+	updateZip(useremail,zipcode)
+	return render_template('layout.html', zipcode=zipcode)
+
+
 
 
 if __name__ == "__main__":
