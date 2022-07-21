@@ -1,0 +1,71 @@
+*{
+    margin: 0;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+
+    background-image: url(images/tan.jpg);
+    background-size: cover;
+    background-position:center;
+}
+
+.container{
+    position: absolute;
+    padding: 50px 80px;
+    text-align: center;
+    box-shadow: 3px 6px 30px 8px rgb(58 58 58 / 15%);
+    background: rgb(0, 52, 134 / 50%);
+    right: 15%;
+    bottom: 20%;
+    height: 57%;
+    border: 1px solid;
+    border-top-color: #90E4C1;
+    border-left-color: #90E4C1;
+    border-bottom-color: #00000030;
+    border-right-color: #00000030;
+
+}
+.container .title{
+    text-align: center;
+    font-size: 25px;
+    font-weight: 500;
+    position: relative;
+    color: black;
+}
+
+.input-box{
+    width: 300px;
+    margin-left; 20px;
+}
+
+label{
+    display: flex;
+    margin-top: 20px;
+    font-size: 18px;
+    color: black;
+}
+
+input{
+    width: 100%;
+    padding: 7px;
+    border: none;
+    border: 1px solid gray;
+    border-radius: 6px;
+    outline: none;
+}
+
+input[type='submit']{
+    width: 300px;
+    height: 35px;
+    margin-top: 20px;
+    border: none;
+    background-color: #009688
+}
