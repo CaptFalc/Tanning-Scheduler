@@ -1,2 +1,8 @@
 .env
 testing.py
+.gitignore
+.DS_Store
+package-lock.json
+package.json
+.idea
+node_modules
