@@ -100,7 +100,7 @@ def getUserzip(useremail):
 def getLocation(useremail):
     # Gets location of user from database, if not found returns False
     cursor = conn.cursor()
-    if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(user)):
+    if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(useremail)):
         return cursor.fetchone()
     else:
         zipcode =getUserzip(useremail)
