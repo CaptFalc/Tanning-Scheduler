@@ -298,13 +298,9 @@ def calendar():
 		useremail = flask_login.current_user.id
 		location=getLocation(useremail)
 		uvi=getUvi(location[0],location[1])
-		parseCal(uvi)
+		schedule=parseCal(uvi)
+	return 0
 
-	schedule = getSchedule(useremail, schedule)
-	if(schedule):
-		pass
-	else:
-		print("Error")
 
 
 @app.route("/updatezipcode", methods=['POST'])
