@@ -95,7 +95,7 @@ def getUserzip(useremail):
 	cursor.execute(
             "Select zipcode from users where email='{0}'".format(useremail))
 	zipcode=cursor.fetchone()
-	return zipcode
+	return zipcode[0]
 
 def getLocation(useremail):
     # Gets location of user from database, if not found returns False
@@ -138,7 +138,7 @@ def getOffset(lat,lon):
 
 def updateZip(email,zipcode):
 	cursor=conn.cursor()
-	cursor.execute("UPDATE users SET zipcode={0} WHERE email={1}".format(
+	cursor.execute("UPDATE users SET zipcode='{0}' WHERE email='{1}'".format(
 		zipcode,email
 	))
 
@@ -222,8 +222,8 @@ def login():
             user = User()
             user.id = email
             flask_login.login_user(user)  # okay login in user
-            # protected is a function defined in this file
-            return flask.redirect(flask.url_for('protected'))
+            getUserzip(email)
+            return render_template("layout.html",zipcode=getUserzip(email))
 
     # information did not match
     return "<a href='/login'>Try again</a>\
@@ -240,6 +240,9 @@ def logout():
 def unauthorized_handler():
     return render_template('unauth.html')
 
+
+
+
 # you can specify specific methods (GET/POST) in function header instead of inside the functions as seen earlier
 
 
@@ -255,6 +258,7 @@ def register_user():
         name = request.form.get('name')
         password = request.form.get('password')
         zipcode = request.form.get('zipcode')
+        print(zipcode)
     except:
         # this prints to shell, end users will not see this (all print statements go to shell)
         print("couldn't find all tokens")
@@ -276,7 +280,7 @@ def register_user():
 
 @app.route("/layout", methods=['GET'])
 @flask_login.login_required
-def layoutpage():
+def layoutPage():
     useremail = flask_login.current_user.id
     zipcode=getUserzip(useremail)
     return render_template('layout.html', zipcode=zipcode)
