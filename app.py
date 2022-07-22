@@ -67,20 +67,20 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
 #uvi: [(unixtime,uvindex)]
 
 
-def processUvi(uvidata,offset):
+def processUvi(uvidata, offset):
     colors = {
         0: "black",
-        1:"green",
-        2:"green",
-        3:"yellow",
-        4:"yellow",
-        5:"yellow",
-        6:"orange",
-        7:"orange",
-        8:"red",
-        9:"red",
-        10:"red",
-        11:"purple"
+        1: "green",
+        2: "green",
+        3: "yellow",
+        4: "yellow",
+        5: "yellow",
+        6: "orange",
+        7: "orange",
+        8: "red",
+        9: "red",
+        10: "red",
+        11: "purple"
     }
     hours = []
     days = []
@@ -108,71 +108,71 @@ def processUvi(uvidata,offset):
         i += 1
     return (hours,days)
 
+
 def processSchedule(schedule):
-	opencal = open(schedule, 'rb')
-	cal = Calendar.from_ical(opencal.read())
-	event=[]
-	for component in cal.walk():
-		if component.name == "VEVENT":
-			start = component.decoded("dtstart").timestamp()
-			end = component.decoded("dtend").timestamp()
-			event.append((start,end))
-	return event
+    opencal = open(schedule, "r")
+    cal = Calendar.from_ical(opencal.read())
+    event = []
+    for component in cal.walk():
+        if component.name == "VEVENT":
+            start = component.decoded("dtstart").timestamp()
+            end = component.decoded("dtend").timestamp()
+            event.append((start, end))
+    return event
 
-def parseCal(uvi,schedule=None):
-	'''
-	Takes: uvi: two lists, hours and days. Hours contains tuples of (starttime,endtime,day,color), days contains tuples of (day,color) 
-	'''
-	tags=""
-	hours=uvi[0]
-	days=uvi[1]
-	session=0
-	starttime=0
-	endtime=0
-	#Process days
-	for x in days:
-		day=x[0]
-		color=x[1]
-		tags+='''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-0700 / time-1800;">
+
+def parseCal(uvi, schedule=None):
+    '''
+    Takes: uvi: two lists, hours and days. Hours contains tuples of (starttime,endtime,day,color), days contains tuples of (day,color) 
+    '''
+    tags = ""
+    hours = uvi[0]
+    days = uvi[1]
+    session = 0
+    starttime = 0
+    endtime = 0
+    # Process days
+    for x in days:
+        day = x[0]
+        color = x[1]
+        tags += '''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-0700 / time-1800;">
     <h3 class="session-title"><a href="#">Talk Title</a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
-  </div>'''.format(session,color,day)
-		session+=1
-	for x in hours:
-		starttime=x[0]
-		endtime=x[1]
-		day=x[2]
-		color=x[3]
-		tags+='''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-{3} / time-{4};">
+  </div>'''.format(session, color, day)
+        session += 1
+    for x in hours:
+        print(x)
+        starttime = x[0]
+        endtime = x[1]
+        day = x[2]
+        color = x[3]
+        tags += '''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-{3} / time-{4};">
     <h3 class="session-title"><a href="#">Talk Title</a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
-  </div>'''.format(session,color,day,starttime,endtime)
-		session+=1
-	if schedule:
-		formatted=processSchedule(schedule)
-		#Gives tuples of (starttime,endtime,day)
-		for x in formatted:
-			tags+='''<div class="session session-{0} background-color:gray;track-{1}" style="grid-column: track-{1}; grid-row: time-{2} / time-{3};">
+  </div>'''.format(session, color, day, starttime, endtime)
+        session += 1
+    if schedule:
+        formatted = processSchedule(schedule)
+        # Gives tuples of (starttime,endtime,day)
+        for x in formatted:
+            tags += '''<div class="session session-{0} background-color:gray;track-{1}" style="grid-column: track-{1}; grid-row: time-{2} / time-{3};">
     <h3 class="session-title"><a href="#">Talk Title</a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
-  </div>'''.format(session,day,starttime,endtime)
-			session+=1
-	return tags
-		
-
-	
-
+  </div>'''.format(session, day, starttime, endtime)
+            session += 1
+    return tags
 
 
 def getUserzip(useremail):
-	cursor = conn.cursor()
-	cursor.execute(
-            "Select zipcode from users where email='{0}'".format(useremail))
-	zipcode=cursor.fetchone()
-	return zipcode[0]
+    cursor = conn.cursor()
+    cursor.execute(
+        "Select zipcode from users where email='{0}'".format(useremail))
+    zipcode = cursor.fetchone()
+    return zipcode[0]
+
 
 def getLocation(useremail):
     # Gets location of user from database, if not found returns False
@@ -180,14 +180,11 @@ def getLocation(useremail):
     if cursor.execute("SELECT lat,lon from zipcodes where zipcode in(select zipcode from users where email='{0}')".format(useremail)):
         return cursor.fetchone()
     else:
-        zipcode =getUserzip(useremail)
+        zipcode = getUserzip(useremail)
         latlon = getlatLon(zipcode)
-        cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES (%s,%s,%s)",
-                       zipcode, latlon[0], latlon[1])
+        cursor.execute("Insert INTO zipcodes (zipcode,lat,lon) VALUES ({0},{1},{2})".format(str(zipcode),latlon[0],latlon[1]))
         conn.commit()
         return latlon
-
-
 
 
 '''
@@ -197,23 +194,25 @@ def getLocation(useremail):
 	else:
 		return False 
 '''
-def getOffset(lat,lon):
-    key=str(os.environ.get('timezonekey'))  
-    url="http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng={2}".format(
-        key,lat,lon
-    )
-    response=requests.get(url)
-    response=response.json()
-    offset=int(response["gmtOffset"])
-    offset=offset/3600
-    return offset
-	
 
-def updateZip(email,zipcode):
-	cursor=conn.cursor()
-	cursor.execute("UPDATE users SET zipcode='{0}' WHERE email='{1}'".format(
-		zipcode,email
-	))
+
+def getOffset(lat, lon):
+    key = str(os.environ.get('timezonekey'))
+    url = "http://api.timezonedb.com/v2.1/get-time-zone?key={0}&format=json&by=position&lat={1}&lng={2}".format(
+        key, lat, lon
+    )
+    response = requests.get(url)
+    response = response.json()
+    offset = int(response["gmtOffset"])
+    offset = offset/3600
+    return offset
+
+
+def updateZip(email, zipcode):
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET zipcode='{0}' WHERE email='{1}'".format(
+        str(zipcode), email
+    ))
 
 
 def getUserList():
@@ -296,7 +295,7 @@ def login():
             user.id = email
             flask_login.login_user(user)  # okay login in user
             getUserzip(email)
-            return render_template("layout.html",zipcode=getUserzip(email))
+            return render_template("layout.html", zipcode=getUserzip(email))
 
     # information did not match
     return "<a href='/login'>Try again</a>\
@@ -314,8 +313,6 @@ def unauthorized_handler():
     return render_template('unauth.html')
 
 
-
-
 # you can specify specific methods (GET/POST) in function header instead of inside the functions as seen earlier
 
 
@@ -331,7 +328,6 @@ def register_user():
         name = request.form.get('name')
         password = request.form.get('password')
         zipcode = request.form.get('zipcode')
-        print(zipcode)
     except:
         # this prints to shell, end users will not see this (all print statements go to shell)
         print("couldn't find all tokens")
@@ -339,8 +335,8 @@ def register_user():
     cursor = conn.cursor()
     test = isEmailUnique(email)
     if test:
-        print(cursor.execute("INSERT INTO Users (email, name, password, zipcode) VALUES (%s, %s,%s,%s)",
-              (email, name, password, zipcode)))
+        cursor.execute("INSERT INTO Users (email, name, password, zipcode) VALUES (%s, %s,%s,%s)",
+                       email, name, password, str(zipcode))
         conn.commit()
         # log user in
         user = User()
@@ -351,11 +347,12 @@ def register_user():
         print("couldn't find all tokens")
         return flask.redirect(flask.url_for('register'))
 
+
 @app.route("/layout", methods=['GET'])
 @flask_login.login_required
 def layoutPage():
     useremail = flask_login.current_user.id
-    zipcode=getUserzip(useremail)
+    zipcode = getUserzip(useremail)
     return render_template('layout.html', zipcode=zipcode)
 
 
@@ -366,37 +363,103 @@ def layoutPage():
 def hello():
     return render_template('hello.html')
 
+
 @app.route("/calendar", methods=['GET'])
 def welcome():
     return render_template("calendar.html")
+
 
 @app.route("/calendar", methods=['POST'])
 @flask_login.login_required
 def calendar():
    # gets user inputs, redirects to page with schedule
-	try:
-		schedule = request.form.get('schedule')
-		useremail = flask_login.current_user.id
-		location=getLocation(useremail)
-		uvi=getUvi(location[0],location[1])
-		parseCal(uvi,schedule)
-	except:
-		# this prints to shell, end users will not see this (all print statements go to shell)
-		useremail = flask_login.current_user.id
-		location=getLocation(useremail)
-		uvi=getUvi(location[0],location[1])
-		schedule=parseCal(uvi)
-	return 0
+    try:
+        schedule = request.form.get('schedule')
+        useremail = flask_login.current_user.id
+        location = getLocation(useremail)
+        uvi = getUvi(location[0], location[1])
+        offset = getOffset(location[0], location[1])
+        xuvi = processUvi(uvi, offset)
+        print(xuvi)
+        schedule = processSchedule(schedule)
+        ultimate = parseCal(xuvi, schedule)
+    except:
+        # this prints to shell, end users will not see this (all print statements go to shell)
+        useremail = flask_login.current_user.id
+        location = getLocation(useremail)
+        uvi = getUvi(location[0], location[1])
+        offset = getOffset(location[0], location[1])
+        xuvi = processUvi(uvi, offset)
+        ultimate = parseCal(xuvi, schedule)
+    return '''<!DOCTYPE html>
+<html>
+<head>
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style4.css') }}">
+</head>
+<body>
 
+<h2 id="schedule-heading">TANNING TIME</h2>
+<div class="schedule" aria-labelledby="schedule-heading">
+
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">Track 1</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-2; grid-row: tracks;">Track 2</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-3; grid-row: tracks;">Track 3</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-4; grid-row: tracks;">Track 4</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-4; grid-row: tracks;">Track 4</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-5; grid-row: tracks;">Track 5</span>
+
+
+  <h2 class="time-slot" style="grid-row: time-0800;">8:00am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-0830;">8:30am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-0900;">9:00am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-0930;">9:30am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1000;">10:00am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1030;">10:30am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1100;">11:00am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1130;">11:30am</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1200;">12:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1230;">12:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1300;">1:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1330;">1:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1400;">2:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1430;">2:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1500;">3:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1530;">3:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1600;">4:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1630;">4:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1700;">5:00pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1730;">5:30pm</h2>
+
+  <h2 class="time-slot" style="grid-row: time-1800;">6:00pm</h2>'''+ultimate+'''</div> </body>
+</html>'''
 
 
 @app.route("/updatezipcode", methods=['POST'])
 @flask_login.login_required
-def changezip():
-	zipcode= request.form.get('zipcode')
-	useremail = flask_login.current_user.id
-	updateZip(useremail,zipcode)
-	return render_template('layout.html', zipcode=zipcode)
+def change():
+    zipcode = request.form.get('zipcode')
+    useremail = flask_login.current_user.id
+    updateZip(useremail, zipcode)
+    return render_template('layout.html', zipcode=zipcode)
 
 
 if __name__ == "__main__":
