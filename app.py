@@ -64,24 +64,83 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
         days.append((dt, uvi))
     return (hours, days)
 
+#uvi: [(unixtime,uvindex)]
+
+
+def processUvi(uvidata,offset):
+	colors={	
+		1:"green",
+		2:"green",
+		3:"yellow",
+		4:"yellow",
+		5:"yellow",
+		6:"orange",
+		7:"orange",
+		8:"red",
+		9:"red",
+		10:"red",
+		11:"purple"
+	}
+	return 0
+
+def processSchedule(schedule):
+	opencal = open(schedule, 'rb')
+	cal = Calendar.from_ical(opencal.read())
+	event=[]
+	for component in cal.walk():
+		if component.name == "VEVENT":
+			start = component.decoded("dtstart").timestamp()
+			end = component.decoded("dtend").timestamp()
+			event.append((start,end))
+	return event
 
 def parseCal(uvi,schedule=None):
-    times=[]
-    if schedule:
-        opencal = open(schedule, 'rb')
-        cal = Calendar.from_ical(opencal.read())
-        for component in cal.walk():
-            if component.name == "VEVENT":
-                event = []
-                start = component.decoded("dtstart").timestamp()
-                end = component.decoded("dtend").timestamp()
-                event.append(start)
-                event.append(end)
-                event.append(-1)
-                times.append(event)
-    hours=uvi[0]
-    days=uvi[1]
-    return 0
+	'''
+	Takes: uvi: two lists, hours and days. Hours contains tuples of (starttime,endtime,day,color), days contains tuples of (day,color) 
+	'''
+	tags=""
+	hours=uvi[0]
+	days=uvi[1]
+	session=0
+	starttime=0
+	endtime=0
+	#Process days
+	for x in days:
+		day=x[0]
+		color=x[1]
+		tags+='''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-0700 / time-1800;">
+    <h3 class="session-title"><a href="#">Talk Title</a></h3>
+    <span class="session-time"></span>
+    <span class="session-presenter"></span>
+  </div>'''.format(session,color,day)
+		session+=1
+	for x in hours:
+		starttime=x[0]
+		endtime=x[1]
+		day=x[2]
+		color=x[3]
+		tags+='''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-{3} / time-{4};">
+    <h3 class="session-title"><a href="#">Talk Title</a></h3>
+    <span class="session-time"></span>
+    <span class="session-presenter"></span>
+  </div>'''.format(session,color,day,starttime,endtime)
+		session+=1
+	if schedule:
+		formatted=processSchedule(schedule)
+		#Gives tuples of (starttime,endtime,day)
+		for x in formatted:
+			tags+='''<div class="session session-{0} background-color:gray;track-{1}" style="grid-column: track-{1}; grid-row: time-{2} / time-{3};">
+    <h3 class="session-title"><a href="#">Talk Title</a></h3>
+    <span class="session-time"></span>
+    <span class="session-presenter"></span>
+  </div>'''.format(session,day,starttime,endtime)
+			session+=1
+	return tags
+		
+
+	
+
+
 
 def getUserzip(useremail):
 	cursor = conn.cursor()
@@ -282,6 +341,9 @@ def layoutPage():
 def hello():
     return render_template('hello.html')
 
+@app.route("/calendar", methods=['GET'])
+def welcome():
+    return render_template("calendar.html")
 
 @app.route("/calendar", methods=['POST'])
 @flask_login.login_required
