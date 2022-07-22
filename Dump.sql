@@ -25,9 +25,24 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `email` varchar(45) NOT NULL,
   `password` varchar(45) NOT NULL,
-  `zipcode` int NOT NULL,
+  `zipcode` varchar(5) NOT NULL,
   `name` varchar(45) NOT NULL,
   PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `zipcodes`
+--
+
+DROP TABLE IF EXISTS `zipcodes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `zipcodes` (
+  `zipcode` int NOT NULL,
+  `lat` float DEFAULT NULL,
+  `lon` float DEFAULT NULL,
+  PRIMARY KEY (`zipcode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -40,4 +55,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-07-18 13:31:30
+-- Dump completed on 2022-07-21 21:18:51
