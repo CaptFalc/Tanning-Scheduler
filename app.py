@@ -56,7 +56,7 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
     for x in response["hourly"]:
         dt = x["dt"]
         uvi = x["uvi"]
-        hours.append(dt, uvi)
+        hours.append((dt, uvi))
     for x in range(5):
         y = response["daily"][x]
         dt = y["dt"]
@@ -68,20 +68,45 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
 
 
 def processUvi(uvidata,offset):
-	colors={	
-		1:"green",
-		2:"green",
-		3:"yellow",
-		4:"yellow",
-		5:"yellow",
-		6:"orange",
-		7:"orange",
-		8:"red",
-		9:"red",
-		10:"red",
-		11:"purple"
-	}
-	return 0
+    colors = {
+        0: "black",
+        1:"green",
+        2:"green",
+        3:"yellow",
+        4:"yellow",
+        5:"yellow",
+        6:"orange",
+        7:"orange",
+        8:"red",
+        9:"red",
+        10:"red",
+        11:"purple"
+    }
+    hours = []
+    days = []
+    numofDays = 1
+    nightTime = False
+    for hour in uvidata[0]:
+        color = colors[int(hour[1])]
+        time = datetime.utcfromtimestamp(hour[0]).strftime('%H%M')
+        time = int(time)
+        time = (time + (offset * 100)) % 2400
+        endtime = (int(time) + 100) % 2400
+        if time >= 1800 and nightTime is False:
+            numofDays += 1
+            nightTime = True
+        elif time >= 1800:
+            nightTime = True
+        else:
+            nightTime = False
+        if time >= 700 and time <= 1800 and endtime <= 1800:
+            hours.append((time, endtime, numofDays, color))
+    i = 1
+    for day in uvidata[1]:
+        color = colors[int(day[1])]
+        days.append((i, color))
+        i += 1
+    return (hours,days)
 
 def processSchedule(schedule):
 	opencal = open(schedule, 'rb')
