@@ -6,42 +6,16 @@
     display: grid;
     grid-gap: 1em;
     grid-template-rows:
-      [tracks] auto
-      [time-0800] 1fr
-      [time-0830] 1fr
-      [time-0900] 1fr
-      [time-0930] 1fr
-      [time-1000] 1fr
-      [time-1030] 1fr
-      [time-1100] 1fr
-      [time-1130] 1fr
-      [time-1200] 1fr
-      [time-1230] 1fr
-      [time-1300] 1fr
-      [time-1330] 1fr
-      [time-1400] 1fr
-      [time-1430] 1fr
-      [time-1500] 1fr
-      [time-1530] 1fr
-      [time-1600] 1fr
-      [time-1630] 1fr
-      [time-1700] 1fr
-      [time-1730] 1fr
-      [time-1800] 1fr;
-      /* Note 1:
+      [tracks] auto [time-0800] 1fr [time-0830] 1fr [time-0900] 1fr [time-0930] 1fr [time-1000] 1fr [time-1030] 1fr [time-1100] 1fr [time-1130] 1fr [time-1200] 1fr [time-1230] 1fr [time-1300] 1fr [time-1330] 1fr [time-1400] 1fr [time-1430] 1fr [time-1500] 1fr [time-1530] 1fr [time-1600] 1fr [time-1630] 1fr [time-1700] 1fr [time-1730] 1fr [time-1800] 1fr;
+    /* Note 1:
       Use 24hr time for gridline names for simplicity
 
       Note 2: Use "auto" instead of "1fr" for a more compact schedule where height of a slot is not proportional to the session length. Implementing a "compact" shortcode attribute might make sense for this!
       Try 0.5fr for more compact equal rows. I don't quite understand how that works :)
       */
-    
+
     grid-template-columns:
-      [times] 4em
-      [track-1-start] 1fr
-      [track-1-end track-2-start] 1fr
-      [track-2-end track-3-start] 1fr
-      [track-3-end track-4-start] 1fr
-      [track-4-end];
+      [times] 4em [track-1-start] 1fr [track-1-end track-2-start] 1fr [track-2-end track-3-start] 1fr [track-3-end track-4-start] 1fr [track-4-end];
   }
 }
 
@@ -50,10 +24,11 @@
 }
 
 .track-slot {
-  display: none; /* hidden on small screens and browsers without grid support */
+  display: none;
+  /* hidden on small screens and browsers without grid support */
 }
 
-@supports( display:grid ) {
+@supports(display:grid) {
   @media screen and (min-width:700px) {
     .track-slot {
       display: block;
@@ -61,21 +36,21 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      background-color: rgba(255,255,255,.9);
+      background-color: rgba(255, 255, 255, .9);
     }
   }
 }
 
 /* Small-screen & fallback styles */
 .session {
-  margin-bottom:  1em;
+  margin-bottom: 1em;
 }
 
-@supports( display:grid ) {
+@supports(display:grid) {
   @media screen and (min-width: 700px) {
     .session {
       margin: 0;
-    } 
+    }
   }
 }
 
@@ -95,8 +70,8 @@ body {
   border-radius: 2px;
   font-size: 14px;
   box-shadow:
-    rgba(255,255,255,.6) 1px 1px 0,
-    rgba(0,0,0,.3) 4px 4px 0;
+    rgba(255, 255, 255, .6) 1px 1px 0,
+    rgba(0, 0, 0, .3) 4px 4px 0;
 }
 
 .session-title,
@@ -115,20 +90,20 @@ body {
 .session-title a {
   color: #fff;
   text-decoration-style: dotted;
-  
+
   &:hover {
     font-style: italic;
   }
-  
+
   &:focus {
-    outline: 2px dotted rgba(255,255,255,.8);
+    outline: 2px dotted rgba(255, 255, 255, .8);
   }
 }
 
 .track-slot,
 .time-slot {
   font-weight: bold;
-  font-size:.75em;
+  font-size: .75em;
 }
 
 .track-1 {
@@ -150,6 +125,13 @@ body {
   background-color: #c35500;
   color: #fff;
 }
+
+
+.track-5 {
+  background-color: #c35500;
+  color: #fff;
+}
+
 
 .track-all {
   display: flex;

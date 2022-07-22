@@ -120,6 +120,13 @@ def processSchedule(schedule):
             event.append((start, end))
     return event
 
+def formattime(timestamp):
+    timestamp=str(timestamp)
+    if len(timestamp)==3:
+        timestamp="0"+timestamp
+        return timestamp
+    else:
+        return timestamp
 
 def parseCal(uvi, schedule=None):
     '''
@@ -128,40 +135,48 @@ def parseCal(uvi, schedule=None):
     tags = ""
     hours = uvi[0]
     days = uvi[1]
-    session = 0
+    session = 1
     starttime = 0
     endtime = 0
     # Process days
     for x in days:
         day = x[0]
         color = x[1]
-        tags += '''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-0700 / time-1800;">
+        tags += '''<div class="session session-{0} track-{1}" style="background-color:{2}; grid-column: track-{1}; grid-row: time-0700 / time-1800;">
     <h3 class="session-title"><a href="#">Talk Title</a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
-  </div>'''.format(session, color, day)
+  </div>'''.format(session, day, color)
         session += 1
     for x in hours:
         print(x)
-        starttime = x[0]
-        endtime = x[1]
+        starttime = int(x[0])
+        endtime = int(x[1])
+        starttime=formattime(starttime)
+        endtime=formattime(endtime)
         day = x[2]
         color = x[3]
-        tags += '''<div class="session session-{0} background-color:{1};track-{2}" style="grid-column: track-{2}; grid-row: time-{3} / time-{4};">
-    <h3 class="session-title"><a href="#">Talk Title</a></h3>
+        tags += '''<div class="session session-{0} track-{1}" style="background-color:{2};grid-column: track-{1}; grid-row: time-{3} / time-{4};">
+    <h3 class="session-title">.</h3>
     <span class="session-time"></span>
+    <span class="session-track">Track: 1 & 2</span>
     <span class="session-presenter"></span>
-  </div>'''.format(session, color, day, starttime, endtime)
+  </div>'''.format(session, day, color, starttime, endtime)
         session += 1
     if schedule:
         formatted = processSchedule(schedule)
         # Gives tuples of (starttime,endtime,day)
         for x in formatted:
-            tags += '''<div class="session session-{0} background-color:gray;track-{1}" style="grid-column: track-{1}; grid-row: time-{2} / time-{3};">
+            starttime=int(x[0])
+            endtime=int(x[0])
+            starttime=formattime(starttime)
+            endtime=formattime(endtime)
+            tags += '''<div class="session session-{0} track-{1}" style="background-color:gray;grid-column: track-{1}; grid-row: time-{2} / time-{3};">
     <h3 class="session-title"><a href="#">Talk Title</a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
-  </div>'''.format(session, day, starttime, endtime)
+  </div>
+'''.format(session, day, starttime, endtime)
             session += 1
     return tags
 
@@ -394,7 +409,7 @@ def calendar():
     return '''<!DOCTYPE html>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style4.css') }}">
+<link type="text/css" rel="stylesheet" href="/static/style4.css">
 </head>
 <body>
 
