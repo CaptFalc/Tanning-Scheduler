@@ -12,15 +12,15 @@
 import flask
 from flask import Flask, request, render_template
 from flaskext.mysql import MySQL
-from icalendar import Calendar, Event
+from icalendar import Calendar
 from datetime import datetime
-from pathlib import Path
 import flask_login
 from dotenv import load_dotenv
 import os
 import requests
 import pgeocode
-import pytz
+import datetime as dt1
+
 
 load_dotenv()
 mysql = MySQL()
@@ -374,6 +374,27 @@ def layoutPage():
 
 # default page
 
+def getweekdays(x):
+    
+    daydict = {
+        0: "Monday",
+        1: "Tuesday",
+        2: "Wednesday",
+        3: "Thursday",
+        4: "Friday",
+        5:"Saturday",
+        6:"Sunday"
+    }
+    count=dt1.datetime.today().weekday()
+    days=[]
+    for y in range(x):
+        tmpcount=count
+        tmpcount+=y
+        tmpcount%=6
+        days.append(daydict[tmpcount])
+    return days
+
+
 
 @app.route("/", methods=['GET'])
 def hello():
@@ -413,7 +434,8 @@ def calendar():
         xuvi = processUvi(uvi, offset)
         print(xuvi)
         ultimate = parseCal(xuvi, schedule)
-    return '''<!DOCTYPE html>
+        days=getweekdays(3)
+        header='''<!DOCTYPE html>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/static/style4.css">
@@ -423,12 +445,10 @@ def calendar():
 <h2 id="schedule-heading">TANNING TIME</h2>
 <div class="schedule" aria-labelledby="schedule-heading">
 
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">Track 1</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-2; grid-row: tracks;">Track 2</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-3; grid-row: tracks;">Track 3</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-4; grid-row: tracks;">Track 4</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-4; grid-row: tracks;">Track 4</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-5; grid-row: tracks;">Track 5</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">{0}</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-2; grid-row: tracks;">{1}</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-3; grid-row: tracks;">{2}</span>
+
 
 
   <h2 class="time-slot" style="grid-row: time-0800;">8:00am</h2>
@@ -471,9 +491,10 @@ def calendar():
 
   <h2 class="time-slot" style="grid-row: time-1730;">5:30pm</h2>
 
-  <h2 class="time-slot" style="grid-row: time-1800;">6:00pm</h2>'''+ultimate+'''</div> </body>
+  <h2 class="time-slot" style="grid-row: time-1800;">6:00pm</h2>'''.format(days[0],days[1],days[2])
+    full=header+ultimate+'''</div> </body>
 </html>'''
-
+    return full
 
 @app.route("/updatezipcode", methods=['POST'])
 @flask_login.login_required
