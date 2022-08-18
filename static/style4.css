@@ -53,6 +53,21 @@
   }
 }
 
+ul{
+  position:absolute;
+  left: 70%;
+  top:25%;
+  background-color: rgb(220, 200, 174);
+  width: 20%;
+
+}
+li{
+  font-size: 20pt;
+}
+
+h1{
+  font-size: 25pt;
+}
 /*************************
  * VISUAL STYLES
  * Design-y stuff ot particularly important to the demo

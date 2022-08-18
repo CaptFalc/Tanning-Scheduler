@@ -253,6 +253,7 @@ def getlatLon(zip):
     return latlon
 
 
+
 # end login code
 
 class User(flask_login.UserMixin):
@@ -434,7 +435,10 @@ def calendar():
         print(xuvi)
         ultimate = parseCal(xuvi, schedule)
     
+    
     days=getweekdays(3)
+    useremail = flask_login.current_user.id
+    zipcode = getUserzip(useremail)
     header='''<!DOCTYPE html>
 <html>
 <head>
@@ -442,12 +446,14 @@ def calendar():
 </head>
 <body>
 
-<h2 id="schedule-heading">Tanning Schedule</h2>
+<h2 id="schedule-heading">Tanning Schedule for {0}</h2>
+
+
 <div class="schedule" aria-labelledby="schedule-heading">
 
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">{0}</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-2; grid-row: tracks;">{1}</span>
-  <span class="track-slot" aria-hidden="true" style="grid-column: track-3; grid-row: tracks;">{2}</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">{1}</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-2; grid-row: tracks;">{2}</span>
+  <span class="track-slot" aria-hidden="true" style="grid-column: track-3; grid-row: tracks;">{3}</span>
 
 
 
@@ -487,8 +493,16 @@ def calendar():
 
   <h2 class="time-slot" style="grid-row: time-1630;">4:30pm</h2>
 
-  <h2 class="time-slot" style="grid-row: time-1700;">5:00pm</h2>'''.format(days[0],days[1],days[2])
-    full=header+ultimate+'''</div> </body>
+  <h2 class="time-slot" style="grid-row: time-1700;">5:00pm</h2>'''.format(zipcode,days[0],days[1],days[2])
+    full=header+ultimate+'''</div> <ul>
+<h1>UV Index Key</h1>
+    <li style="color:blue;">0-.99</li>
+    <li style="color:greenyellow";>1-2.99</li>
+    <li style="color:yellow";>3-4.99</li>
+    <li style="color:red";>5-6.99</li>
+    <li style="color:orange";>7-8.99</li>
+    <li style="color:purple";>9+</li>
+</ul> </body>
 </html>'''
     return full
 
