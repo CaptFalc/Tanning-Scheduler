@@ -29,7 +29,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = os.environ.get("tanningpassword")
+app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
 app.config['MYSQL_DATABASE_DB'] = 'tanningscheduler'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -46,13 +46,14 @@ users = cursor.fetchall()
 
 def getUvi(lat, lon, exclude="minutely,current,alerts"):
     # Takes coordinates (ints), returns tuple of two lists: uv index of next 48 hours and 5 days.
-    apikey = os.environ.get('apikey')
+    apikey = "0d9344b51cb190751bdbdd9c519497f3"
     api_url = "https://api.openweathermap.org/data/3.0/onecall?lat={0}&lon={1}&exclude={2}&appid={3}".format(
         lat, lon, exclude, apikey)
-    response = requests.get(api_url)
+    response = requests.get(api_url) 
     response = response.json()
     hours = []
     days = []
+    #print(response)
     for x in response["hourly"]:
         dt = x["dt"]
         uvi = x["uvi"]
@@ -69,9 +70,9 @@ def getUvi(lat, lon, exclude="minutely,current,alerts"):
 
 def processUvi(uvidata, offset):
     colors = {
-        0: "black",
-        1: "green",
-        2: "green",
+        0: "blue",
+        1: "greenyellow",
+        2: "greenyellow",
         3: "yellow",
         4: "yellow",
         5: "yellow",
@@ -85,22 +86,29 @@ def processUvi(uvidata, offset):
     hours = []
     days = []
     numofDays = 1
-    nightTime = False
-    for hour in uvidata[0]:
+    houridx=0
+    offset=-7
+    while houridx<len(uvidata[0]):
+        hour=uvidata[0][houridx]
+        print(hour)
         color = colors[int(hour[1])]
+        print(color)
         time = datetime.utcfromtimestamp(hour[0]).strftime('%H%M')
         time = int(time)
-        time = (time + (offset * 100)) % 2400
-        endtime = (int(time) + 100) % 2400
-        if time >= 1800 and nightTime is False:
-            numofDays += 1
-            nightTime = True
-        elif time >= 1800:
-            nightTime = True
-        else:
-            nightTime = False
-        if time >= 700 and time <= 1800 and endtime <= 1800:
+        time = (time % 2400)+offset*100
+        print(time) 
+        endtime = (time+100)%2400    
+        if 1700>=time>=700:
             hours.append((time, endtime, numofDays, color))
+            houridx+=1
+        else:
+            curr=time
+            while(curr>1700 or curr<700 and houridx<len(uvidata[0])):
+                curr=(int(datetime.utcfromtimestamp(uvidata[0][houridx][0]).strftime('%H%M')))
+                curr = (curr % 2400)+offset*100
+                print("wait. current time: "+str(curr))
+                houridx+=1  
+            numofDays+=1
     i = 1
     for day in uvidata[1]:
         color = colors[int(day[1])]
@@ -139,27 +147,20 @@ def parseCal(uvi, schedule=None):
     starttime = 0
     endtime = 0
     # Process days
-    for x in days:
-        day = x[0]
-        color = x[1]
-        tags += '''<div class="session session-{0} track-{1}" style="background-color:{2}; grid-column: track-{1}; grid-row: time-0700 / time-1800;">
-    <h3 class="session-title"><a href="#">Talk Title</a></h3>
-    <span class="session-time"></span>
-    <span class="session-presenter"></span>
-  </div>'''.format(session, day, color)
-        session += 1
+    print(hours)
     for x in hours:
         print(x)
         starttime = int(x[0])
         endtime = int(x[1])
         starttime=formattime(starttime)
         endtime=formattime(endtime)
+        print(starttime,endtime)
         day = x[2]
         color = x[3]
         tags += '''<div class="session session-{0} track-{1}" style="background-color:{2};grid-column: track-{1}; grid-row: time-{3} / time-{4};">
-    <h3 class="session-title">.</h3>
+    <h3 class="session-title"></h3>
     <span class="session-time"></span>
-    <span class="session-track">Track: 1 & 2</span>
+    <span class="session-track"></span>
     <span class="session-presenter"></span>
   </div>'''.format(session, day, color, starttime, endtime)
         session += 1
@@ -172,7 +173,7 @@ def parseCal(uvi, schedule=None):
             starttime=formattime(starttime)
             endtime=formattime(endtime)
             tags += '''<div class="session session-{0} track-{1}" style="background-color:gray;grid-column: track-{1}; grid-row: time-{2} / time-{3};">
-    <h3 class="session-title"><a href="#">Talk Title</a></h3>
+    <h3 class="session-title"><a href="#"></a></h3>
     <span class="session-time"></span>
     <span class="session-presenter"></span>
   </div>
@@ -350,8 +351,8 @@ def register_user():
     cursor = conn.cursor()
     test = isEmailUnique(email)
     if test:
-        cursor.execute("INSERT INTO Users (email, name, password, zipcode) VALUES (%s, %s,%s,%s)",
-                       email, name, password, str(zipcode))
+        print(email)
+        cursor.execute("INSERT INTO users (email, password, zipcode, name) VALUES (%s, %s,%s,%s)", (email,password,zipcode,name))
         conn.commit()
         # log user in
         user = User()
@@ -393,10 +394,15 @@ def calendar():
         useremail = flask_login.current_user.id
         location = getLocation(useremail)
         uvi = getUvi(location[0], location[1])
-        offset = getOffset(location[0], location[1])
+        print("Preprocessing:")
+        print(uvi)
+        #offset = getOffset(location[0], location[1])
+        #offset=0
+        print("offset:" +str(offset))
         xuvi = processUvi(uvi, offset)
+        print("With offset: ")
         print(xuvi)
-        schedule = processSchedule(schedule)
+        #schedule = processSchedule(schedule)
         ultimate = parseCal(xuvi, schedule)
     except:
         # this prints to shell, end users will not see this (all print statements go to shell)
@@ -405,6 +411,7 @@ def calendar():
         uvi = getUvi(location[0], location[1])
         offset = getOffset(location[0], location[1])
         xuvi = processUvi(uvi, offset)
+        print(xuvi)
         ultimate = parseCal(xuvi, schedule)
     return '''<!DOCTYPE html>
 <html>
