@@ -46,7 +46,7 @@ users = cursor.fetchall()
 
 def getUvi(lat, lon, exclude="minutely,current,alerts"):
     # Takes coordinates (ints), returns tuple of two lists: uv index of next 48 hours and 5 days.
-    apikey = "0d9344b51cb190751bdbdd9c519497f3"
+    apikey = str(os.environ.get('weatherkey'))
     api_url = "https://api.openweathermap.org/data/3.0/onecall?lat={0}&lon={1}&exclude={2}&appid={3}".format(
         lat, lon, exclude, apikey)
     response = requests.get(api_url) 
@@ -75,19 +75,19 @@ def processUvi(uvidata, offset):
         2: "greenyellow",
         3: "yellow",
         4: "yellow",
-        5: "yellow",
+        5: "orange",
         6: "orange",
-        7: "orange",
+        7: "red",
         8: "red",
-        9: "red",
-        10: "red",
+        9: "purple",
+        10: "puple",
         11: "purple"
     }
     hours = []
     days = []
     numofDays = 1
     houridx=0
-    offset=-7
+    #offset=-7
     while houridx<len(uvidata[0]):
         hour=uvidata[0][houridx]
         print(hour)
@@ -142,7 +142,6 @@ def parseCal(uvi, schedule=None):
     '''
     tags = ""
     hours = uvi[0]
-    days = uvi[1]
     session = 1
     starttime = 0
     endtime = 0
@@ -417,7 +416,7 @@ def calendar():
         uvi = getUvi(location[0], location[1])
         print("Preprocessing:")
         print(uvi)
-        #offset = getOffset(location[0], location[1])
+        offset = getOffset(location[0], location[1])
         #offset=0
         print("offset:" +str(offset))
         xuvi = processUvi(uvi, offset)
@@ -434,15 +433,16 @@ def calendar():
         xuvi = processUvi(uvi, offset)
         print(xuvi)
         ultimate = parseCal(xuvi, schedule)
-        days=getweekdays(3)
-        header='''<!DOCTYPE html>
+    
+    days=getweekdays(3)
+    header='''<!DOCTYPE html>
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/static/style4.css">
 </head>
 <body>
 
-<h2 id="schedule-heading">TANNING TIME</h2>
+<h2 id="schedule-heading">Tanning Schedule</h2>
 <div class="schedule" aria-labelledby="schedule-heading">
 
   <span class="track-slot" aria-hidden="true" style="grid-column: track-1; grid-row: tracks;">{0}</span>
@@ -487,11 +487,7 @@ def calendar():
 
   <h2 class="time-slot" style="grid-row: time-1630;">4:30pm</h2>
 
-  <h2 class="time-slot" style="grid-row: time-1700;">5:00pm</h2>
-
-  <h2 class="time-slot" style="grid-row: time-1730;">5:30pm</h2>
-
-  <h2 class="time-slot" style="grid-row: time-1800;">6:00pm</h2>'''.format(days[0],days[1],days[2])
+  <h2 class="time-slot" style="grid-row: time-1700;">5:00pm</h2>'''.format(days[0],days[1],days[2])
     full=header+ultimate+'''</div> </body>
 </html>'''
     return full
